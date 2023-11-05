@@ -1,0 +1,24 @@
+#!/bin/bash
+#REM Etapes 1
+#!/bin/bash
+FILE=brahimPrivateKey.pem
+if test -f "$FILE"; then
+    echo "$FILE already exists."
+else 
+	openssl genrsa -out brahimPrivateKey.pem 1024
+	openssl rsa -pubout -in brahimPrivateKey.pem -out brahimPublicKey.pem
+	#REM Etapes 2
+	cp brahimPublicKey.pem -d ../ali
+	
+    echo "$FILE generated."
+fi
+#REM Etapes 9
+openssl rsautl -decrypt -inkey brahimPrivateKey.pem -in enkey.bin -out key.bin
+#REM Etapes 10
+openssl enc -d -des -base64 -in messageFromAli -out demsg -pass file:key.bin
+#REM Etapes 11
+openssl enc -d -des -base64 -in ensign -out sign -pass file:key.bin
+#REM Etapes 12
+openssl dgst -sign aliPublicKey.pem -out signmsg message
+#REM Etapes 13
+openssl dgst -verify aliPublicKey.pem -signature sign demsg
